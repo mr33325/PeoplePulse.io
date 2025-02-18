@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: peoplepulse-api
+  profiles:
+    active: dev
