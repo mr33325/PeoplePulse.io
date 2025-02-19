@@ -14,8 +14,8 @@ import io.github.resilience4j.retry.annotation.Retry;
 import io.peoplepulse.api.config.AppConstants;
 import io.peoplepulse.api.config.DataSetProvider;
 import io.peoplepulse.api.entity.User;
+import io.peoplepulse.api.model.UserResponse;
 import io.peoplepulse.api.repository.UserRepository;
-import io.peoplepulse.api.response.UserResponse;
 
 @Service
 public class UserService {
