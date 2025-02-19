@@ -16,4 +16,8 @@ public class AppConstants {
 	public static final String EMPTY_STRING = "";
 	
 	public static final String URL_STRING_FORMAT = "%s%s";
+	
+	public static final int CONNECT_TIMEOUT = 10; // in seconds
+	
+    public static final int READ_TIMEOUT = 15; // in seconds
 }

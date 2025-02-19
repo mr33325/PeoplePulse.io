@@ -2,10 +2,15 @@ package io.peoplepulse.api.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +26,7 @@ import io.peoplepulse.api.repository.UserRepository;
 public class UserService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+	private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -31,7 +37,12 @@ public class UserService {
 	@Autowired
 	private DataSetProvider dataSetProvider;
 
-	// Load users from external API into H2 DB
+	
+	/**
+	 * Load users from external API into H2 DB
+	 * 
+	 * @return Message String
+	 */
 	@Retry(name = "userDataRetry", fallbackMethod = "fallbackLoadUsers")
 	public String loadUsersFromExternalAPI() {
 		logger.info("Fetching user data from external API...");
@@ -49,24 +60,57 @@ public class UserService {
 		}
 	}
 
-	// Fallback for loading users
+	
+	/**
+	 * Fallback for loading users
+	 * 
+	 * @param ex The exception
+	 * @return  Message String
+	 */
 	public String fallbackLoadUsers(Throwable ex) {
 		logger.error("Failed to load users from external API: {}", ex.getMessage());
 		return "Failed to load users. Please try again later.";
 	}
 
-	// Find user by ID
+
+	/**
+	 * Find user by ID
+	 * 
+	 * @param id The User Id
+	 * @return Optional User
+	 */
 	public Optional<User> findUserById(Long id) {
+		if (id == null || id <= 0) {
+			throw new IllegalArgumentException("Invalid user ID. ID must be a positive number.");
+		}
 		return userRepository.findById(id);
 	}
 
-	// Find user by email
+
+	/**
+	 * Find user by email
+	 * 
+	 * @param email
+	 * @return Optional User
+	 */
 	public Optional<User> findUserByEmail(String email) {
+		if (email == null || email.trim().isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
+			throw new IllegalArgumentException("Invalid email format.");
+		}
 		return userRepository.findByEmail(email);
 	}
 
-	// Free-text search on firstName, lastName, and SSN
+	/**
+	 * Free-text search on firstName, lastName, and SSN
+	 * 
+	 * @param query
+	 * @return List of Users
+	 */
 	public List<User> searchUsers(String query) {
+		if (query == null || query.trim().length() < 3) {
+			throw new IllegalArgumentException("Search query must be at least 3 characters long.");
+		}
 		return userRepository.searchByKeyword(query);
 	}
+	
 }
