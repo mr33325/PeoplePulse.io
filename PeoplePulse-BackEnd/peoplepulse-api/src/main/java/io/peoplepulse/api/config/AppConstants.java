@@ -14,4 +14,6 @@ public class AppConstants {
 	public static final String GET_MAPPING_SEARCH = "/search";
 	
 	public static final String EMPTY_STRING = "";
+	
+	public static final String URL_STRING_FORMAT = "%s%s";
 }
